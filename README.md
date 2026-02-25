@@ -1,13 +1,13 @@
-# Pokus o ohnutí levné ZigBee brány Tesla z Alzy
+# ZigBee gateway Tesla - jailbread trial
 
-Nedávno mi kolega přinesl ZigBee bránu Tesla, kterou koupil na Alza za dvě kilča. Ukázalo se, že jde nejspíš o stejný HW jako ZigBee brána Silvecrest Lidl. Pokusím sem se tedy nasadit stejný postup pro její ohnutí na čistě lokální přístup, jako bránu pro Home Assistanta (ZHA, nebo ZigBee2MQTT).
+Recently I get some ZigBee gateway Tesla, which my colegue bought very cheap on internet. We've foud out its the very same HW to Lidl/Silvecrest. I'll try to use the same aproach to its release from Tuya (or Tesla or whatever I don't want), to get my very own local access, to be able to use it as Home Assistant ZigBee gateway (ZHA, nebo ZigBee2MQTT).
 
-Tady je původní [postup pro Lidl Silvercrest](<Lidl (Tuya) SmartHome Gateway Ohýbání.md>). Ten byl celkem úspěšný, až na pár běžných zádrhelů, které tam jsou popsané.
+The approach I've used on Lidl is here (czech) [postup pro Lidl Silvercrest](<Lidl (Tuya) SmartHome Gateway Ohýbání.md>). I was succesfull, but some deails described in the notes.
 
-No a tady jsou poznámky k [podobnému pokusu na bráně Tesla](<ZigBee gateway Tuya Tesla.md>). Zatím to není hotové, ale mohlo by se zdát, že do tobře dopadne.
+Well, and here I'm working on new notes about [similar trial on Tesla gateway](<ZigBee gateway Tuya Tesla.md>). It's no done yet, but, maybe, promissing.
 
-V repozitáři jsou kompletní kopie firmwarů a postupy včetně hesel. Je to proto, že jestli ta zařízení někdy půjdou do provozu, ta hesla už dávno platná nebudou. Jako u té brány z Lidlu. A pro teď je fajn, že můžeme pracovat na skutečných datech.
+There ase whole copies of the firmware images in this repo, including possible passwords. This way we can work on real data. I don't care much about those passowords, because in case of success, those passwords and images wouldn't be valid anymore. Like I did with the Lidl thing.
 
-V adresáři [lidl](lidl) jsou skriptíky a prográmky postahované z internetu během dobývání brány Silvecrest. Zdroje jsou v příslušném postupu.
+There is [lidl](lidl) directory in this repo too. It contain files and scripts used while Lidl/Silvercrest gateway hacking. The internet sources are described in the notes above.
 
-V adresáři [tesla](tesla) je zabalený image flashky, včetně kontrolního součtu. Rozbalit a zkontrolovat se to dá skriptíkem [unpack.sh](tesla/unpack.sh). Další postup bude asi mrknout se, zda struktura těch dat zhruba odpovídá očekávaným partišnám, a nahrání nového obsahu z repozitáře zmiňovaného v [druhém odkazu](<ZigBee gateway Tuya Tesla.md>)..
+The directory [tesla](tesla) contains packed flash content image and its checksum. To unpack you can use [unpack.sh](tesla/unpack.sh). Now I'm trying to find out what to put into the flash to [get the thing run](<ZigBee gateway Tuya Tesla.md>)..
