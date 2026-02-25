@@ -1,15 +1,17 @@
+# Tesla ZigBee gateway
+
 ![IMG20260221121425.jpg](img/IMG20260221121425.jpg)  
 ![IMG20260221133121.jpg](img/IMG20260221133121.jpg)
 
-Nejdřív, když jsem zjistil že plošňák vypadá stejně, jsem doufal, že to půjde jako s [Lidl gateway SilverCrest - Lidl (Tuya) SmartHome Gateway Ohýbání]("Lidl gateway SilverCrest - Lidl (Tuya) SmartHome Gateway Ohýbání.md")). Jenže tady nejde přerušit bootloader, protože je to zamčené. Takže asi přichází v úvahu jen SPI Flash Dump ... NOR Flash GigaDevice 25Q127CSIG.
+The PCB looks quite the same to Lidl/Silvercrest. I've hoped I can use the same path (czech) [Lidl gateway SilverCrest - Lidl (Tuya) SmartHome Gateway Ohýbání](Lidl gateway SilverCrest - Lidl (Tuya) SmartHome Gateway Ohýbání.md). But I found out that the bootloader is locked, so its not posible to ESC it out. Seems there is only chance in SPI Flash Dump ... The flash chip is NOR Flash GigaDevice 25Q127CSIG.
 
-Nový firmware a postup flashování je v [repozitáři jnilo1/hacking-silvercrest-gateway](https://github.com/jnilo1/hacking-lidl-silvercrest-gateway). SSH přístup nemám (to bych toto nedělal), a bootloader ESC stopnout nemůžu, jako v případě original Lidl gatewaye, takže zbývá [Method 3 - SPI Programmer (CH341A or Equvivalen)](https://github.com/jnilo1/hacking-lidl-silvercrest-gateway/tree/main/3-Main-SoC-Realtek-RTL8196E/30-Backup-Restore#-method-3--spi-programmer-ch341a-or-equivalent). Programátor ovšem taky nemám. Pokusím se ho nahradit RP2040 zero dle [https://github.com/stacksmashing/pico-serprog](https://github.com/stacksmashing/pico-serprog)... uf, nějak se mi to komplikuje...
+I've found nice repo containing (seem so) whole new firmware for the device and the flashing procedure description: [github repo jnilo1/hacking-silvercrest-gateway](https://github.com/jnilo1/hacking-lidl-silvercrest-gateway). I don't have SSH access (otherwise I wouldn't do this). Can't stop bootloader with ESC, like I did last time with Lidl/Silvercrest. So remains the last option [Method 3 - SPI Programmer (CH341A or Equvivalen)](https://github.com/jnilo1/hacking-lidl-silvercrest-gateway/tree/main/3-Main-SoC-Realtek-RTL8196E/30-Backup-Restore#-method-3--spi-programmer-ch341a-or-equivalent). But I don't have the programmer. Never mind, let's try this: RP2040 zero [https://github.com/stacksmashing/pico-serprog](https://github.com/stacksmashing/pico-serprog)... damned, it's getting a bit complicated now ...
 
-- [x] sehnat hw
+- [x] get hardware
 	- breadboard
 	- rp2040 zero
 
-- [x] flashnout programátor
+- [x] flash the programmer
 
 ```bash
 git clone https://github.com/stacksmashing/pico-serprog.git
@@ -21,7 +23,8 @@ make
 cp pico-serprog.u2f /media/.../RPI-RP2/
 ```
 
-- [x] zapojit HW
+- [x] assemble the HW
+
 ![19ac0dbe96ea2f6723a3c43040565081.png](img/19ac0dbe96ea2f6723a3c43040565081.png)
 
 | GPIO | Pico Pin | Function |
@@ -35,7 +38,7 @@ cp pico-serprog.u2f /media/.../RPI-RP2/
 
 ![IMG20260221171942.jpg](img/IMG20260221171942.jpg)
 
-### Pokus o spojení:
+### Let's check it out:
 
 ```bash
 $ flashrom -p serprog:dev=/dev/ttyACM0:115200,spispeed=12M -c GD25Q127C/GD25Q128C
@@ -48,9 +51,9 @@ Found GigaDevice flash chip "GD25Q127C/GD25Q128C" (16384 kB, SPI) on serprog.
 No operations were specified.
 ```
 
-Jo! Tedy na rozdíl od návodu je třeba secifikovat jiný programátor, ale také jiný čip, protože moje verze flashrom holý GD25Q128C nezná ... Ale při spuštění bez specifikace čipu (bez -c ...), se připojí, zjistí, a řekne že musím vybrat mezi dvěma. A jeden z nich je GD25Q127C/GD25Q128C... což odpovídá mému GD25Q127C, takže zatím cajk.
+Yes. The is in the -p section, and the differend -c, device string. Because my version of flashrom doesn't know GD25Q128C ... But if you run it without specifiing the chip (without -c), It'll suggest to chose from two, where the first is GD25Q127C/GD25Q128C... And it looks like my GD25Q127C. So far so good.
 
-### Záloha flashky:
+### Flash chip content backup:
 
 ```bash
 $ flashrom -p serprog:dev=/dev/ttyACM0:115200,spispeed=12M -c GD25Q127C/GD25Q128C -r tesla_gateway_backup.bin
@@ -68,13 +71,13 @@ $ ls -l tesla_gateway_backup.bin
 -rw-rw-r-- 1 ... 16777216 ... tesla_gateway_backup.bin
 ```
 
-Jestli je to dobře? Kdo ví?
+Is it correct? Gues so. Who knows?
 
-### Flashování
+### Flashing
 
-No ale co dál? Teď mám připojenou funkční 16MB flešku, ale všechny návody předpokládají, že mám ssh přístup. To nemám! To bych přece nevyndával tu flešku...
+But what now? I'm having flash chip connected, I can read and write it. But all the instructions expects I'm having ssh access. I don't! If I would, I wouldn't be removing the flash form the board...
 
-Možná že je nápověda tady:
+At least I've found partition layout.
 
 Partition Layout
 After migration:
@@ -86,15 +89,17 @@ After migration:
 0x420000-0x1000000 mtd3  jffs2-fs     (11.9 MB)  - User partition
 ```
 
-No a ty soubory boudou asi: [boot.bin](https://github.com/jnilo1/hacking-lidl-silvercrest-gateway/blob/main/3-Main-SoC-Realtek-RTL8196E/31-Bootloader/boot.bin), [kernel.img](https://github.com/jnilo1/hacking-lidl-silvercrest-gateway/blob/main/3-Main-SoC-Realtek-RTL8196E/32-Kernel/kernel.img), [rootfs.bin](https://github.com/jnilo1/hacking-lidl-silvercrest-gateway/blob/main/3-Main-SoC-Realtek-RTL8196E/33-Rootfs/rootfs.bin) a [userdata.bin](https://github.com/jnilo1/hacking-lidl-silvercrest-gateway/blob/main/3-Main-SoC-Realtek-RTL8196E/34-Userdata/userdata.bin).. tedy snad. Proč má kernel příponu img a ostatní bin???
+And the content would be, probably: [boot.bin](https://github.com/jnilo1/hacking-lidl-silvercrest-gateway/blob/main/3-Main-SoC-Realtek-RTL8196E/31-Bootloader/boot.bin), [kernel.img](https://github.com/jnilo1/hacking-lidl-silvercrest-gateway/blob/main/3-Main-SoC-Realtek-RTL8196E/32-Kernel/kernel.img), [rootfs.bin](https://github.com/jnilo1/hacking-lidl-silvercrest-gateway/blob/main/3-Main-SoC-Realtek-RTL8196E/33-Rootfs/rootfs.bin) and [userdata.bin](https://github.com/jnilo1/hacking-lidl-silvercrest-gateway/blob/main/3-Main-SoC-Realtek-RTL8196E/34-Userdata/userdata.bin).. hope so. But why the kernel.img has different extension to the others???
 
-- [ ] zkusit vytáhnout image z lidl krámu
-- [x] mkrnout se, jestli stažená záloha odpovídá takovému rozdělení
-	- zdá se že jo
+- [ ] how about to try to get the image from my Lidl/Silvercrest thing
+  - I'm not very happy with the idea, because all my ZigBee is using it now
 
-## Rozbor zálohy:
+- [x] take a look if the backup layout fits to the partitions
+	- seems so
 
-Mrkni na [rozbor_zalohy.ipynb](tesla/rozbor_zalohy.ipynb). Zkrátka, zdá se že jo...
+## Partition fitting to the backup image:
+
+Look at [autopsy_of_backup.ipynb](tesla/autopsy_of_backup.ipynb). Long story short, it looks that it fits...
 
 ```
 0x0000000: 0BF00004 00000000 00000000 00000000 00004021 40886000 00000000 3C01B800  ..................@!@.`.....<...
@@ -143,5 +148,5 @@ jffs2-fs
 0x0FFFFE0: FFFFFFFF FFFFFFFF FFFFFFFF FFFFFFFF FFFFFFFF FFFFFFFF FFFFFFFF FFFFFFFF  ................................
 ```
 
-- [ ] vyrobit soubor bin obsahující všechny výše zmíněné, vycpaný Fky
-- [ ] flashnout a modlit se
+- [ ] create new image containing all the partition files 0xFF padded
+- [ ] flash it and hope for the best
