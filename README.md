@@ -1,4 +1,4 @@
-# ZigBee gateway Tesla - jailbread trial
+# ZigBee gateway Tesla - jailbreak trial
 
 Recently I get some ZigBee gateway Tesla, which my colegue bought very cheap on internet. We've foud out its the very same HW to Lidl/Silvecrest. I'll try to use the same aproach to its release from Tuya (or Tesla or whatever I don't want), to get my very own local access, to be able to use it as Home Assistant ZigBee gateway (ZHA, nebo ZigBee2MQTT).
 
