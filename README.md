@@ -1,10 +1,10 @@
 # ZigBee gateway Tesla - jailbreak trial
 
-Recently I get some ZigBee gateway Tesla, which my colegue bought very cheap on internet. We've foud out its the very same HW to Lidl/Silvecrest. I'll try to use the same aproach to its release from Tuya (or Tesla or whatever I don't want), to get my very own local access, to be able to use it as Home Assistant ZigBee gateway (ZHA, nebo ZigBee2MQTT).
+I recently got some ZigBee gateway Tesla, which my colleague bought very cheap on internet. We've foud out its the very same HW to Lidl/Silvecrest. I'll try to use the same aproach to its release from Tuya (or Tesla or whatever I don't want), to get my very own local access, to be able to use it as Home Assistant ZigBee gateway (ZHA, or ZigBee2MQTT).
 
-The approach I've used on Lidl is here (czech) [postup pro Lidl Silvercrest](<Lidl (Tuya) SmartHome Gateway Ohýbání.md>). I was succesfull, but some deails described in the notes.
+The approach I've used on Lidl is here (czech) [postup pro Lidl Silvercrest](<Lidl (Tuya) SmartHome Gateway Ohýbání.md>). I was succesfull. Except some deails described in the notes, everything worked well.
 
-Well, and here I'm working on new notes about [similar trial on Tesla gateway](<ZigBee gateway Tuya Tesla.md>). It's no done yet, but, maybe, promissing.
+Well, and here I'm working on new notes about [similar trial on Tesla gateway](<ZigBee gateway Tuya Tesla.md>). It's no done yet, but, maybe, promising.
 
 There ase whole copies of the firmware images in this repo, including possible passwords. This way we can work on real data. I don't care much about those passowords, because in case of success, those passwords and images wouldn't be valid anymore. Like I did with the Lidl thing.
 
