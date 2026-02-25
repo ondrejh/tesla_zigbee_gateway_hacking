@@ -1,0 +1,3 @@
+[submodule "extern/hacking-lidl-silvercrest-gateway"]
+	path = extern/hacking-lidl-silvercrest-gateway
+	url = https://github.com/jnilo1/hacking-lidl-silvercrest-gateway
