@@ -2,6 +2,8 @@
 
 I recently got some ZigBee gateway Tesla, which my colleague bought very cheap on internet. We've foud out its the very same HW to Lidl/Silvecrest. I'll try to use the same aproach to its release from Tuya (or Tesla or whatever I don't want), to get my very own local access, to be able to use it as Home Assistant ZigBee gateway (ZHA, or ZigBee2MQTT).
 
+![Tesla ZigBee gateway](img/IMG20260226194932.jpg)
+
 The approach I've used on Lidl is here (czech) [postup pro Lidl Silvercrest](<Lidl (Tuya) SmartHome Gateway Ohýbání.md>). I was succesfull. Except some deails described in the notes, everything worked well.
 
 Well, and here I'm working on new notes about [similar trial on Tesla gateway](<ZigBee gateway Tuya Tesla.md>). It's no done yet, but, maybe, promising.
