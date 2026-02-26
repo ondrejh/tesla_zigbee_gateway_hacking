@@ -3,7 +3,7 @@
 ![IMG20260221121425.jpg](img/IMG20260221121425.jpg)  
 ![IMG20260221133121.jpg](img/IMG20260221133121.jpg)
 
-The PCB looks quite the same to Lidl/Silvercrest. I've hoped I can use the same path (czech) [Lidl gateway SilverCrest - Lidl (Tuya) SmartHome Gateway Ohýbání](Lidl gateway SilverCrest - Lidl (Tuya) SmartHome Gateway Ohýbání.md). But I found out that the bootloader is locked, so its not posible to ESC it out. Seems there is only chance in SPI Flash Dump ... The flash chip is NOR Flash GigaDevice 25Q127CSIG.
+The PCB looks quite the same to Lidl/Silvercrest. I've hoped I can use the same path (czech) [Lidl gateway SilverCrest - Lidl (Tuya) SmartHome Gateway Ohýbání](<Lidl gateway SilverCrest - Lidl (Tuya) SmartHome Gateway Ohýbání.md>). But I found out that the bootloader is locked, so its not posible to ESC it out. Seems there is only chance in SPI Flash Dump ... The flash chip is NOR Flash GigaDevice 25Q127CSIG.
 
 I've found nice repo containing (seem so) whole new firmware for the device and the flashing procedure description: [github repo jnilo1/hacking-silvercrest-gateway](https://github.com/jnilo1/hacking-lidl-silvercrest-gateway). I don't have SSH access (otherwise I wouldn't do this). Can't stop bootloader with ESC, like I did last time with Lidl/Silvercrest. So remains the last option [Method 3 - SPI Programmer (CH341A or Equvivalen)](https://github.com/jnilo1/hacking-lidl-silvercrest-gateway/tree/main/3-Main-SoC-Realtek-RTL8196E/30-Backup-Restore#-method-3--spi-programmer-ch341a-or-equivalent). But I don't have the programmer. Never mind, let's try this: RP2040 zero [https://github.com/stacksmashing/pico-serprog](https://github.com/stacksmashing/pico-serprog)... damned, it's getting a bit complicated now ...
 
