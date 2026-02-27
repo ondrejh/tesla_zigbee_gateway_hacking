@@ -7,6 +7,8 @@ The PCB looks quite the same to Lidl/Silvercrest. I've hoped I can use the same 
 
 I've found nice repo containing (seem so) whole new firmware for the device and the flashing procedure description: [github repo jnilo1/hacking-silvercrest-gateway](https://github.com/jnilo1/hacking-lidl-silvercrest-gateway). I don't have SSH access (otherwise I wouldn't do this). Can't stop bootloader with ESC, like I did last time with Lidl/Silvercrest. So remains the last option [Method 3 - SPI Programmer (CH341A or Equvivalen)](https://github.com/jnilo1/hacking-lidl-silvercrest-gateway/tree/main/3-Main-SoC-Realtek-RTL8196E/30-Backup-Restore#-method-3--spi-programmer-ch341a-or-equivalent). But I don't have the programmer. Never mind, let's try this: RP2040 zero [https://github.com/stacksmashing/pico-serprog](https://github.com/stacksmashing/pico-serprog)... damned, it's getting a bit complicated now ...
 
+## Flash content backup
+
 - [x] get hardware
 	- breadboard
 	- rp2040 zero
@@ -27,18 +29,18 @@ cp pico-serprog.u2f /media/.../RPI-RP2/
 
 ![19ac0dbe96ea2f6723a3c43040565081.png](img/19ac0dbe96ea2f6723a3c43040565081.png)
 
-| GPIO | Pico Pin | Function |
-|------|----------|----------|
-| 1    |    2     | CS       |
-| 2    |    4     | SCK      |
-| 3    |    5     | MOSI     |
-| 4    |    6     | MISO     |
+| Pico GPIO | Function |
+|-----------|----------|
+| 1         | CS       |
+| 2         | SCK      |
+| 3         | MOSI     |
+| 4         | MISO     |
 
 ![15a8a9469aafeb0c7806f0ebebfc665b.png](img/15a8a9469aafeb0c7806f0ebebfc665b.png)
 
 ![IMG20260221171942.jpg](img/IMG20260221171942.jpg)
 
-### Let's check it out:
+### Testing flasher hardware and chip connection:
 
 ```bash
 $ flashrom -p serprog:dev=/dev/ttyACM0:115200,spispeed=12M -c GD25Q127C/GD25Q128C
@@ -53,7 +55,7 @@ No operations were specified.
 
 Yes. The is in the -p section, and the differend -c, device string. Because my version of flashrom doesn't know GD25Q128C ... But if you run it without specifiing the chip (without -c), It'll suggest to chose from two, where the first is GD25Q127C/GD25Q128C... And it looks like my GD25Q127C. So far so good.
 
-### Flash chip content backup:
+### Flash chip backup:
 
 ```bash
 $ flashrom -p serprog:dev=/dev/ttyACM0:115200,spispeed=12M -c GD25Q127C/GD25Q128C -r tesla_gateway_backup.bin
@@ -71,16 +73,18 @@ $ ls -l tesla_gateway_backup.bin
 -rw-rw-r-- 1 ... 16777216 ... tesla_gateway_backup.bin
 ```
 
-Is it correct? Gues so. Who knows?
+Is it correct? Gues so. At least the content length fits.
 
-### Flashing
+## Find out Partition fitting to the backup image:
 
-But what now? I'm having flash chip connected, I can read and write it. But all the instructions expects I'm having ssh access. I don't! If I would, I wouldn't be removing the flash form the board...
+Look at [autopsy_of_backup.ipynb](tesla/autopsy_of_backup.ipynb). Long story short, it looks that it fits...
 
-At least I've found partition layout.
+### Partition layout
+
+At least I've found partition layout, thanks to [jnilo1/hacking-silvercrest-gateway](https://github.com/jnilo1/hacking-lidl-silvercrest-gateway).
 
 Partition Layout
-After migration:
+After migration (not my case yet):
 
 ```
 0x000000-0x020000  mtd0  boot+cfg     (128 KB)   - Bootloader (unchanged)
@@ -89,19 +93,11 @@ After migration:
 0x420000-0x1000000 mtd3  jffs2-fs     (11.9 MB)  - User partition
 ```
 
-And the content would be, probably: [boot.bin](https://github.com/jnilo1/hacking-lidl-silvercrest-gateway/blob/main/3-Main-SoC-Realtek-RTL8196E/31-Bootloader/boot.bin), [kernel.img](https://github.com/jnilo1/hacking-lidl-silvercrest-gateway/blob/main/3-Main-SoC-Realtek-RTL8196E/32-Kernel/kernel.img), [rootfs.bin](https://github.com/jnilo1/hacking-lidl-silvercrest-gateway/blob/main/3-Main-SoC-Realtek-RTL8196E/33-Rootfs/rootfs.bin) and [userdata.bin](https://github.com/jnilo1/hacking-lidl-silvercrest-gateway/blob/main/3-Main-SoC-Realtek-RTL8196E/34-Userdata/userdata.bin).. hope so. But why the kernel.img has different extension to the others???
-
-- [ ] how about to try to get the image from my Lidl/Silvercrest thing
-  - I'm not very happy with the idea, because all my ZigBee is using it now
-
 - [x] take a look if the backup layout fits to the partitions
 	- seems so
 
-## Partition fitting to the backup image:
-
-Look at [autopsy_of_backup.ipynb](tesla/autopsy_of_backup.ipynb). Long story short, it looks that it fits...
-
 ### The content of backup image with the focus on the partitions:
+
 ```
 0x0000000: 0BF00004 00000000 00000000 00000000 00004021 40886000 00000000 3C01B800  ..................@!@.`.....<...
 0x0000020: 00017825 8DEE0000 00000000 000E7025 3C018196 3421E000 00017825 15CF000A  ..x%..........p%<...4!....x%....
@@ -149,13 +145,22 @@ jffs2-fs
 0x0FFFFE0: FFFFFFFF FFFFFFFF FFFFFFFF FFFFFFFF FFFFFFFF FFFFFFFF FFFFFFFF FFFFFFFF  ................................
 ```
 
-- [ ] create new image containing all the partition files 0xFF padded
+## Flashing
 
-## Trying to create an image out of 4 partition files
+But what now? I'm having flash chip connected, I can read and write it. But all the instructions expects I'm having ssh access. I don't! If I would, I wouldn't be removing the flash form the board...
+
+
+And the content would be, probably: [boot.bin](https://github.com/jnilo1/hacking-lidl-silvercrest-gateway/blob/main/3-Main-SoC-Realtek-RTL8196E/31-Bootloader/boot.bin), [kernel.img](https://github.com/jnilo1/hacking-lidl-silvercrest-gateway/blob/main/3-Main-SoC-Realtek-RTL8196E/32-Kernel/kernel.img), [rootfs.bin](https://github.com/jnilo1/hacking-lidl-silvercrest-gateway/blob/main/3-Main-SoC-Realtek-RTL8196E/33-Rootfs/rootfs.bin) and [userdata.bin](https://github.com/jnilo1/hacking-lidl-silvercrest-gateway/blob/main/3-Main-SoC-Realtek-RTL8196E/34-Userdata/userdata.bin).. hope so. But why the kernel.img has different extension to the others???
+
+- [x] create new image containing all the partition files 0xFF padded
+	- **No Go. Skipt this part, it doesn't work**
+
+### Trying to create an image out of 4 partition files
 
 Hopefully the partition files from [jnilo1/hacking-silvercrest-gateway](https://github.com/jnilo1/hacking-lidl-silvercrest-gateway) are just an images without any formating bytes. I have some doubds, because userdata.bin are much longer than its partition, but let's give it a trial...
 
-### The content of fullmtd.bin gluet out of partition files:
+### The content of new_fullmtd.bin glued together out of partition files:
+
 ```
 0x0000000: 626F6F74 00000000 00000000 00005866 0BF00004 00000000 00000000 00000000  boot..........Xf................
 0x0000020: 00004025 40886000 00000000 3C01B800 00017825 8DEE0000 00000000 000E7025  ..@%@.`.....<.....x%..........p%
@@ -197,7 +202,7 @@ jffs2-fs
 
 This is what I get, gluing all the files together to their partitions positions. Last file, userdata.bin is stripped. Shall I call it new_fullmtd.bin.
 
-- [ ] flash it and hope for the best
+- [x] flash it and hope for the best
 
 ```$ flashrom -p serprog:dev=/dev/ttyACM0:115200,spispeed=12M -c GD25Q127C/GD25Q128C -w new_fullimg.bin 
 flashrom v1.2 on Linux 5.15.0-171-generic (x86_64)
@@ -210,3 +215,85 @@ Reading old flash chip contents... done.
 Erasing and writing flash chip... Erase/write done.
 Verifying flash... VERIFIED.
 ```
+
+Soldering chip back and ... nothing. The damn thing doesn't boot. Not even error on console.
+Let's desolder and try another aproach.
+
+- [ ] how about to try to get the image from my Lidl/Silvercrest thing
+  - I'm not very happy with the idea, because all my ZigBee is using it now
+
+## Create backup from my Lidl/Silvercrest workhorse
+
+Let's create flash image from my Lidl/Silvercrest [like this](https://github.com/jnilo1/hacking-lidl-silvercrest-gateway/tree/main/3-Main-SoC-Realtek-RTL8196E/30-Backup-Restore#-method-1--linux-access-via-ssh)
+
+### Create backup of working system
+
+1. Connect to Lidl/Silvercrest with ssh
+```
+$ ssh -o HostKeyAlgorithms=+ssh-rsa -o PubkeyAcceptedKeyTypes=+ssh-rsa root@<GATEWAY_IP>
+```
+
+2. Copy partition to ram and leave ssh
+```
+# dd if=/dev/mtd0 of=/tmp/mtd0.bin bs=1024
+# exit
+```
+
+3. Copy file from gateways ram to your file
+```
+$ ssh -o HostKeyAlgorithms=+ssh-rsa -o PubkeyAcceptedKeyTypes=+ssh-rsa root@192.168.1.152 "cat /tmp/mtd0.bin" > lidl_mtd0.bin
+```
+
+4. Connect with ssh to gateway and delete tmp file
+```
+$ ssh -o HostKeyAlgorithms=+ssh-rsa -o PubkeyAcceptedKeyTypes=+ssh-rsa root@<GATEWAY_IP>
+# rm /tmp/mtd0.bin
+```
+
+5. Repeat 2-4 with all partitions (mdt0.bin mtd1.bin ... mtd4.bin)
+
+6. Concat the partition files
+```
+$ cat lidl_mtd0.bin lidl_mtd1.bin lidl_mtd2.bin lidl_mtd3.bin lidl_mtd4.bin > lidl_fullmtd_backup.bin
+```
+
+7. Check the result file size (and content)
+
+The result file should have exactly 16777216 bytes. You can also check if partition layout fits, as it was described above.
+
+Note.: I havent unmounted /dev/mtd4 before copying. I havent even stopped services while copying. I looks I was lucky. Even if something went wrong, the bootloader should be ok an i can use it for the [migration to jnilo1's firmware](https://github.com/jnilo1/hacking-lidl-silvercrest-gateway/tree/main/3-Main-SoC-Realtek-RTL8196E/35-Migration).
+
+### Desolder, flash, solder
+
+This is exactly what I didn't wanted to do ... But I had to.
+
+### Testing
+
+Connect serial console, power up while pressing ESC ... Here we are!!!
+
+```
+Booting...                                                                      
+                                                                                
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+@                                                                               
+@ chip__no chip__id mfr___id dev___id cap___id size_sft dev_size chipSize       
+@ 0000000h 0c84018h 00000c8h 0000040h 0000018h 0000000h 0000018h 1000000h       
+@ blk_size blk__cnt sec_size sec__cnt pageSize page_cnt chip_clk chipName       
+@ 0010000h 0000100h 0001000h 0001000h 0000100h 0000010h 000004eh GD25Q128       
+@                                                                               
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+DDR1:32MB                                                                       
+                                                                                
+---RealTek(RTL8196E)at 2020.04.28-13:58+0800 v3.4T-pre2 [16bit](380MHz)         
+P0phymode=01, embedded phy                                                      
+check_image_header  return_addr:05010000 bank_offset:00000000                   
+no sys signature at 00010000!                                                   
+                                                                                
+---Escape booting by user                                                       
+P0phymode=01, embedded phy                                                      
+                                                                                
+---Ethernet init Okay!                                                          
+<RealTek>
+```
+
+I have somehow working system. Copy of my Lidl/Silvercrest (probably with passwords and maybe MAC address? duno.). But, Now I'm probably able to migrate.
