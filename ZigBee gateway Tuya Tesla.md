@@ -199,6 +199,14 @@ This is what I get, gluing all the files together to their partitions positions.
 
 - [ ] flash it and hope for the best
 
-```
-$ flashrom -p serprog:dev=/dev/ttyACM0:115200,spispeed=12M -c GD25Q127C/GD25Q128C -w new_fullmtd.bin
+```$ flashrom -p serprog:dev=/dev/ttyACM0:115200,spispeed=12M -c GD25Q127C/GD25Q128C -w new_fullimg.bin 
+flashrom v1.2 on Linux 5.15.0-171-generic (x86_64)
+flashrom is free software, get the source code at https://flashrom.org
+
+Using clock_gettime for delay loops (clk_id: 1, resolution: 1ns).
+serprog: Programmer name is "pico-serprog"
+Found GigaDevice flash chip "GD25Q127C/GD25Q128C" (16384 kB, SPI) on serprog.
+Reading old flash chip contents... done.
+Erasing and writing flash chip... Erase/write done.
+Verifying flash... VERIFIED.
 ```
