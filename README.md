@@ -8,6 +8,12 @@ The approach I've used on Lidl is here (czech) [postup pro Lidl Silvercrest](<Li
 
 Well, and here I'm working on new notes about [similar trial on Tesla gateway](<ZigBee gateway Tuya Tesla.md>). It's no done yet, but, maybe, promising.
 
+Update 24.3.2026: I've succesfully flashed [new firmware to this Tesla gateway](<Tesla_prvni_uspesny_postup.md>). We've found very hacky way how to get bootloader access, without desoldering the chip. It's writen in Czech language - mostly, kinda strange (I've warned you, if you try to ask google to translate it). Hopefully I'll sumarize it soon. Thanks to my friend who find this clever hack and who wrote the notes. 
+ToDo:
+- [ ] update radio chip fw
+- [ ] test zigbee gateway function
+- [ ] test matter
+
 There ase whole copies of the firmware images in this repo, including possible passwords. This way we can work on real data. I don't care much about those passowords, because in case of success, those passwords and images wouldn't be valid anymore. Like I did with the Lidl thing.
 
 There is [lidl](lidl) directory in this repo too. It contain files and scripts used while Lidl/Silvercrest gateway hacking. The internet sources are described in the notes above.
